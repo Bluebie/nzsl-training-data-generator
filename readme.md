@@ -10,5 +10,6 @@ This big mess is intended to be a tool for generating training datasets to teach
 * `video-reader.js`: a simple ffmpeg interface, to convert video files in to a stack of PNG images in a temporary directory
 * `pose-machine.js`: a wrapper around PoseNet, with some aditional filtering to improve quality signals and reject bad classifications
 * `nzsl.js`: a really simple model to read in data from the NZSL-Dictionary dataset, and conveniently access related videos and image files
-* `generate.js`: the main script, which will query the NZSL-Dictionary dataset and bulk export labeled training samples 
+* `extractor-bot.js`: the main script, which queries the NZSL-Dictionary dataset and bulk exports labeled training samples 
+* `run-extractor-bot.js`: example of extractor bot in use
 * `test.js`: a really bad test script that just pokes a few apis so i can see they're working, desperately in need of replacement with a propper testing system

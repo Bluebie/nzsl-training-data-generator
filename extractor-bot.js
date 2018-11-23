@@ -27,7 +27,7 @@ class ExtractorBot {
     if (!this.config.nzslSelector) this.config.nzslSelector = (def)=> def.attributes.handshapes && def.attributes.handshapes.length > 0
     if (!this.config.labeler) this.config.labeler = (def)=> def.attributes.handshapes.map((fn)=> fn.split('-')[0])
     if (!this.config.keypoints) this.config.keypoints = ['fakeLeftHand', 'fakeRightHand']
-    if (!this.config.extractSize) this.config.extractSize = 100
+    if (!this.config.extractSize) this.config.extractSize = 100/480
     if (!this.config.poseNet) this.config.poseNet = {
       imageScaleFactor: 0.5,
       outputStride: 16,
@@ -92,9 +92,10 @@ class ExtractorBot {
 
         // for each output path, cut out selected keypoints and write them out
         let extracts = []
+        let pixelSize = Math.round(this.config.extractSize * this.pm.frames[0].frameFormat[0])
         labelPaths.forEach((path)=> {
           this.config.keypoints.forEach((keypoint)=> {
-            let e = this.pm.extractKeyPics(path, keypoint, this.config.extractSize, this.config.qualitySelector)
+            let e = this.pm.extractKeyPics(path, keypoint, pixelSize, this.config.qualitySelector)
             extracts.push(e)
           })
         })

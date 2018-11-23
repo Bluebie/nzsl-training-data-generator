@@ -59,7 +59,7 @@ class ExtractorBot {
     this._log("Loading PoseMachine/PoseNet Model, this will take a moment...")
     this.config.poseNet.log = this.config.log
     this.pm = new PoseMachine(this.config.poseNet)
-    this.pm.loadModel()
+    await this.pm.loadModel()
     this._log("Extractor Bot Initialised!")
   }
 

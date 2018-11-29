@@ -1,5 +1,5 @@
 {
-  "name": "nzsl-training-data-generator",
+  "name": "sign-training-data-generator",
   "version": "0.0.1",
   "description": "",
   "main": "generate.js",
@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tensorflow-models/mobilenet": "^0.2.2",
     "@tensorflow-models/posenet": "^0.2.3",
     "@tensorflow/tfjs-node": "^0.1.21",
     "rmdir-recursive": "0.0.1",

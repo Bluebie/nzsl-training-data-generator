@@ -1,5 +1,4 @@
 var VideoReader = require('./video-reader')
-var NZSL = require('./nzsl').dataset("../NZSL-Dictionary")
 var PoseMachine = require('./pose-machine')
 var fs = require('fs')
 var util = require('util')
@@ -24,9 +23,11 @@ class ExtractorBot {
     if (!this.config.outputFolder) throw new Error("config outputFolder is required")
     if (!this.config.stateFilePath) this.config.stateFilePath = path.join(this.config.outputFolder, 'state.json')
     if (!this.config.videoFilters) this.config.videoFilters = { gamma: 2.5, contrast: 1.1, gamma_weight: 0.3 }
-    if (!this.config.nzslSelector) this.config.nzslSelector = (def)=> def.attributes.handshapes && def.attributes.handshapes.length > 0
-    if (!this.config.labeler) this.config.labeler = (def)=> def.attributes.handshapes.map((fn)=> fn.split('-')[0])
+    if (!this.config.selector) this.config.selector = (def)=> true
+    if (!this.config.labeler) this.config.labeler = (def)=> def.labels || [def.label] || 'unlabeled'
+    if (!this.config.videoPath) this.config.videoPath = (def)=> def.videoPath
     if (!this.config.keypoints) this.config.keypoints = ['fakeLeftHand', 'fakeRightHand']
+    if (!this.config.dataset) throw new Error("dataset must be provided, as an array of objects")
     if (!this.config.extractSize) this.config.extractSize = 100/480
     if (!this.config.poseNet) this.config.poseNet = {
       imageScaleFactor: 0.5,
@@ -43,7 +44,7 @@ class ExtractorBot {
 
     // initialise state if needed
     if (!fs.existsSync(this.config.stateFilePath)) {
-      let entries = await NZSL.entries()
+      let entries = this.config.dataset//Object.keys(this.config.dataset).map((x)=> parseInt(x)) //await NZSL.entries()
       let defaultState = {
         remainingTasks: entries,
         completedTasks: [],
@@ -74,10 +75,10 @@ class ExtractorBot {
       // remove a task from the queue
       let task = this.state.remainingTasks.shift()
       // lookup next NZSL definition
-      let definition = await NZSL.lookup(task)
+      let definition = task //await NZSL.lookup(task)
 
       // check if we should do this one
-      if (this.config.nzslSelector(definition)) {
+      if (this.config.selector(definition)) {
       // generate our label list
         let labels = this.config.labeler(definition)
         // check output sub-directories exist, and create them if they don't
@@ -85,7 +86,7 @@ class ExtractorBot {
         labelPaths.forEach((path)=> { if (!fs.existsSync(path)) fs.mkdirSync(path) })
         
         // process video from this definition
-        this._log(`Processing ${definition.nzsl_id}...`)
+        this._log(`Processing ${path.basename(definition.videoPath)}...`)
         let video = await VideoReader.open(definition.videoPath)
         await this.pm.processVideo(video)
         
@@ -111,7 +112,7 @@ class ExtractorBot {
 
       } else {
         this.state.skippedTasks.push(task)
-        this._log(`Skipped recognition task ${task} because nzslSelector returned false`)
+        this._log(`Skipped recognition task ${task} because selector returned false`)
       }
 
       // add to the completed list

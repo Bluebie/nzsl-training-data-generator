@@ -30,13 +30,19 @@ class VideoReader {
         ], {}, (err, stdout, stderr)=> {
           if (err) return reject(err)
           // find last statement about final frame and store that as length
-          var m = stderr.match(/frame=([ 0-9]+)fps=/)
-          if (m) {
-            this.length = parseInt(m[1].trim())
+          // var m = stderr.match(/frame=([ 0-9]+)fps=/)
+          // if (m) {
+          //   this.length = parseInt(m[1].trim())
+          //   resolve(this)
+          // } else {
+          //   reject(stderr)
+          // }
+          // figure out frame count by looking in folder
+          fs.readdir(folder, {}, (err, list)=> {
+            if (err) reject(err)
+            this.length = list.filter((x)=> x.match(/frame/)).length
             resolve(this)
-          } else {
-            reject(stderr)
-          }
+          })
         })
       })
 
